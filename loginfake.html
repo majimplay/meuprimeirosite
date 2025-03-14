@@ -87,57 +87,60 @@
     <button id="okButton">OK</button>
   </div>
 
-  <script>
-    // Função para registrar usuário
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+ <script>
+  // Função para registrar usuário
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-      var username = document.getElementById('username').value;
-      var email = document.getElementById('email').value;
-      var password = document.getElementById('password').value;
-      var confirmPassword = document.getElementById('confirmPassword').value;
-      var messageDiv = document.getElementById('message');
-      var okButton = document.getElementById('okButton');
+    var username = document.getElementById('username').value;
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+    var confirmPassword = document.getElementById('confirmPassword').value;
+    var messageDiv = document.getElementById('message');
+    var okButton = document.getElementById('okButton');
 
-      // Validação de senha
-      if (password !== confirmPassword) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = 'As senhas não coincidem!';
-        messageDiv.style.display = 'block';
-        return;
-      }
-
-      // Simulação de armazenamento com localStorage
-      if (localStorage.getItem(username)) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = 'Usuário já registrado!';
-        messageDiv.style.display = 'block';
-        return;
-      }
-
-      // Armazenar os dados do usuário
-      var userData = {
-        username: username,
-        email: email,
-        password: password
-      };
-
-      localStorage.setItem(username, JSON.stringify(userData));
-
-      // Exibir mensagem de sucesso e botão "OK"
-      messageDiv.style.color = 'green';
-      messageDiv.textContent = 'Registro efetuado com sucesso!';
+    // Validação de senha
+    if (password !== confirmPassword) {
+      messageDiv.style.color = 'red';
+      messageDiv.textContent = 'As senhas não coincidem!';
       messageDiv.style.display = 'block';
-      okButton.style.display = 'block';
+      return;
+    }
 
-      // Ocultar formulário
-      document.getElementById('registerForm').style.display = 'none';
-    });
+    // Verificar se o usuário já existe
+    if (localStorage.getItem(username)) {
+      messageDiv.style.color = 'red';
+      messageDiv.textContent = 'Usuário já registrado!';
+      messageDiv.style.display = 'block';
+      return;
+    }
 
-    // Redirecionar ao clicar no botão OK
-    document.getElementById('okButton').addEventListener('click', function() {
-      window.location.href = 'index.html';
-    });
-  </script>
+    // Armazenar os dados do usuário
+    var userData = {
+      username: username,
+      email: email,
+      password: password
+    };
+
+    localStorage.setItem(username, JSON.stringify(userData));
+
+    // Armazenar o nome de usuário para uso na index.html
+    localStorage.setItem('loggedUser', username);
+
+    // Exibir mensagem de sucesso e botão "OK"
+    messageDiv.style.color = 'green';
+    messageDiv.textContent = 'Registro efetuado com sucesso!';
+    messageDiv.style.display = 'block';
+    okButton.style.display = 'block';
+
+    // Ocultar formulário
+    document.getElementById('registerForm').style.display = 'none';
+  });
+
+  // Redirecionar ao clicar no botão OK
+  document.getElementById('okButton').addEventListener('click', function() {
+    window.location.href = 'index.html';
+  });
+</script>
 </body>
 </html>
