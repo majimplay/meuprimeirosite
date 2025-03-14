@@ -19,18 +19,17 @@
       padding: 20px;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      text-align: center;
     }
     h2 {
-      text-align: center;
       margin-bottom: 20px;
     }
     label {
       display: block;
+      text-align: left;
       margin-bottom: 5px;
     }
-    input[type="text"],
-   
-    input[type="password"] {
+    input {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -51,9 +50,18 @@
       background-color: #0056b3;
     }
     .message {
-      text-align: center;
       margin-top: 20px;
-      font-size: 14px;
+      font-size: 16px;
+      color: green;
+      display: none;
+    }
+    #okButton {
+      display: none;
+      margin-top: 10px;
+      background-color: #28a745;
+    }
+    #okButton:hover {
+      background-color: #218838;
     }
   </style>
 </head>
@@ -65,16 +73,18 @@
       <input type="text" id="username" name="username" required>
       
       <label for="email">Email:</label>
-    
+      <input type="email" id="email" name="email" required>
 
       <label for="password">Senha:</label>
       <input type="password" id="password" name="password" required>
 
-
+      <label for="confirmPassword">Confirme a Senha:</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required>
 
       <button type="submit">Registrar</button>
     </form>
-    <div class="message" id="message"></div>
+    <div class="message" id="message">Registro efetuado com sucesso!</div>
+    <button id="okButton">OK</button>
   </div>
 
   <script>
@@ -87,11 +97,13 @@
       var password = document.getElementById('password').value;
       var confirmPassword = document.getElementById('confirmPassword').value;
       var messageDiv = document.getElementById('message');
+      var okButton = document.getElementById('okButton');
 
       // Validação de senha
       if (password !== confirmPassword) {
         messageDiv.style.color = 'red';
         messageDiv.textContent = 'As senhas não coincidem!';
+        messageDiv.style.display = 'block';
         return;
       }
 
@@ -99,10 +111,11 @@
       if (localStorage.getItem(username)) {
         messageDiv.style.color = 'red';
         messageDiv.textContent = 'Usuário já registrado!';
+        messageDiv.style.display = 'block';
         return;
       }
 
-      // Armazenar os dados do usuário (atenção: não é seguro armazenar senhas em localStorage)
+      // Armazenar os dados do usuário
       var userData = {
         username: username,
         email: email,
@@ -110,11 +123,20 @@
       };
 
       localStorage.setItem(username, JSON.stringify(userData));
+
+      // Exibir mensagem de sucesso e botão "OK"
       messageDiv.style.color = 'green';
       messageDiv.textContent = 'Registro efetuado com sucesso!';
+      messageDiv.style.display = 'block';
+      okButton.style.display = 'block';
 
-      // Limpar o formulário
-      document.getElementById('registerForm').reset();
+      // Ocultar formulário
+      document.getElementById('registerForm').style.display = 'none';
+    });
+
+    // Redirecionar ao clicar no botão OK
+    document.getElementById('okButton').addEventListener('click', function() {
+      window.location.href = 'index.html';
     });
   </script>
 </body>
