@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login de Clientes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 16px;
+      color: red;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login de Clientes</h2>
+    <form id="loginForm">
+      <label for="username">Usuário:</label>
+      <input type="text" id="username" name="username" required>
+      
+      <label for="password">Senha:</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="message" id="message">Usuário ou senha incorretos!</div>
+  </div>
+
+  <script>
+    // Função para autenticar usuário
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      var messageDiv = document.getElementById('message');
+
+      // Recuperar os dados do usuário do localStorage
+      var storedUser = localStorage.getItem(username);
+      if (storedUser) {
+        var userData = JSON.parse(storedUser);
+
+        // Verificar se a senha está correta
+        if (userData.password === password) {
+          // Armazenar o usuário logado para uso na index.html
+          localStorage.setItem('loggedUser', username);
+
+          // Redirecionar para a página inicial
+          window.location.href = 'index.html';
+          return;
+        }
+      }
+
+      // Exibir mensagem de erro
+      messageDiv.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
