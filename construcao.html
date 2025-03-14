@@ -19,6 +19,14 @@
         display: inline-block;
         padding: 20px 40px;
         border-radius: 8px;
+        animation: moveDownUp  10s ease-out infinite;
+      }
+      @keyframes moveDownUp  {
+        0%   { transform: translateY(0); }
+        25%  { transform: translateY(50px); }
+        50%  { transform: translateY(0); }
+        75%  { transform: translateY(50px); }
+        100% { transform: translateY(0); }
       }
       .btn {
         display: inline-block;
