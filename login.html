@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login com Firebase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      margin-top: 50px;
+    }
+    form {
+      display: inline-block;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    input {
+      display: block;
+      width: 250px;
+      margin: 10px auto;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      border: none;
+      border-radius: 3px;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #message {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="E-mail" required />
+    <input type="password" id="password" placeholder="Senha" required />
+    <button type="submit">Entrar</button>
+  </form>
+  <p id="message"></p>
+
+  <!-- Scripts do Firebase (versões atuais) -->
+  <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
+
+  <script>
+    // CONFIGURAÇÃO DO SEU PROJETO FIREBASE
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      // ...
+    };
+
+    // INICIALIZA O FIREBASE
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.getAuth(app);
+
+    // LÓGICA DE LOGIN
+    const form = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Se o login for bem-sucedido:
+          messageEl.style.color = 'green';
+          messageEl.textContent = 'Login efetuado com sucesso!';
+          // Exemplo: redirecionar para a página inicial
+          // window.location.href = 'index.html';
+        })
+        .catch((error) => {
+          messageEl.style.color = 'red';
+          messageEl.textContent = 'Erro ao entrar: ' + error.message;
+        });
+    });
+  </script>
+</body>
+</html>
