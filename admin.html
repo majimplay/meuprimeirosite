@@ -111,6 +111,46 @@
       opacity: 0.9;
     }
     
+       .image-gallery {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    
+    .image-container {
+      position: relative;
+    }
+    
+    .delete-image {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: none;
+      cursor: pointer;
+    }
+    
+    .image-container:hover .delete-image {
+      display: block;
+    }
+    
+    .editable-field {
+      border-bottom: 1px dashed #666;
+      cursor: text;
+      padding: 4px;
+    }
+    
+    .editable-field:focus {
+      outline: none;
+      background: #f0f8ff;
+      border-radius: 4px;
+    }
+
     
   </style>
 </head>
@@ -139,7 +179,7 @@
     <table id="productsTable">
       <thead>
         <tr>
-          <th>Imagem</th>
+          <th>Imagens</th>
           <th>Produto</th>
           <th>Preço</th>
           <th>Ações</th>
@@ -147,9 +187,8 @@
       </thead>
       <tbody></tbody>
     </table>
-    
-    <button onclick="saveAllChanges()" class="btn btn-save">💾 Salvar Todas as Alterações</button>
   </div>
+
 
   <p id="message">Carregando...</p>
 
@@ -206,28 +245,56 @@ async function uploadImage(file) {
         renderizarTabela();
       });
     }
-    function renderizarTabela() {
+  function renderizarTabela() {
       const tbody = document.querySelector('#productsTable tbody');
       tbody.innerHTML = '';
       
       for(const [id, produto] of Object.entries(products)) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><img src="${produto.imagem}" class="product-image"></td>
-          <td>${produto.nome}</td>
           <td>
-            <span class="price-display">${produto.preco.toFixed(2)}</span>
-            <input type="number" class="price-edit" value="${produto.preco}" step="0.01" hidden>
+            <div class="image-gallery">
+              ${produto.imagens.map((url, index) => `
+                <div class="image-container">
+                  <img src="${url}" class="product-image">
+                  <div class="delete-image" onclick="removerImagem('${id}', ${index})">×</div>
+                </div>
+              `).join('')}
+            </div>
+            <button class="btn btn-edit" onclick="adicionarImagem('${id}')">📷 Adicionar Imagem</button>
           </td>
           <td>
-            <button class="btn btn-edit" onclick="toggleEdit('${id}')">✏️ Editar</button>
+            <div class="editable-field" 
+                 contenteditable="true" 
+                 data-id="${id}" 
+                 data-field="nome">${produto.nome}</div>
+          </td>
+          <td>
+            <div class="editable-field" 
+                 contenteditable="true" 
+                 data-id="${id}" 
+                 data-field="preco">${produto.preco.toFixed(2)}</div>
+          </td>
+          <td>
             <button class="btn btn-delete" onclick="excluirProduto('${id}')">🗑️ Excluir</button>
           </td>
         `;
         tbody.appendChild(tr);
       }
-    }
 
+  document.querySelectorAll('.editable-field').forEach(field => {
+        field.addEventListener('input', debounce(() => {
+          const id = field.getAttribute('data-id');
+          const fieldName = field.getAttribute('data-field');
+          const value = fieldName === 'preco' 
+            ? parseFloat(field.textContent) 
+            : field.textContent;
+          
+          updateProduto(id, { [fieldName]: value });
+        }, 500));
+      });
+    }
+    
     window.toggleEdit = (id) => {
       const row = document.querySelector(`tr:has(button[onclick="toggleEdit('${id}')"])`);
       const display = row.querySelector('.price-display');
@@ -289,41 +356,21 @@ async function uploadImage(file) {
     });
 
     // Adicionar Novo Produto
- document.getElementById('productForm').addEventListener('submit', async (e) => {
+  document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('productName').value;
       const price = parseFloat(document.getElementById('productPrice').value);
       const imageFile = document.getElementById('productImage').files[0];
 
-      if (!imageFile) {
-        alert('Selecione uma imagem!');
-        return;
-      }
-
       try {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        
-        const imageUrl = await new Promise((resolve, reject) => {
-          reader.onload = async () => {
-            try {
-              const url = await uploadImage(reader.result);
-              resolve(url);
-            } catch (error) {
-              reject(error);
-            }
-          };
-        });
-
+        const imageUrl = await uploadImage(imageFile);
         const newProductRef = push(ref(database, 'produtos'));
         await salvarProduto(newProductRef.key, {
           nome: name,
           preco: price,
-          imagem: imageUrl
+          imagens: [imageUrl]
         });
-        
         e.target.reset();
-        alert('Produto adicionado com sucesso!');
       } catch (error) {
         alert(error.message);
       }
