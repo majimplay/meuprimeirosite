@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Administrativo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    form {
+      margin-top: 20px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel Administrativo</h1>
+  <!-- Área de administração para adicionar produtos -->
+  <div id="adminContent" class="hidden">
+    <h2>Adicionar Produto</h2>
+    <form id="productForm">
+      <label for="productName">Nome do Produto:</label>
+      <input type="text" id="productName" required>
+      
+      <label for="productPrice">Preço:</label>
+      <input type="number" id="productPrice" step="0.01" required>
+      
+      <button type="submit">Adicionar Produto</button>
+    </form>
+  </div>
+  <p id="message">Carregando...</p>
+
+  <script type="module">
+    // Importando módulos do Firebase 9 (modular)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+         // Configurações do seu projeto Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
+          authDomain: "gitautenticatio.firebaseapp.com",
+          projectId: "gitautenticatio",
+          storageBucket: "gitautenticatio.firebasestorage.app",
+          messagingSenderId: "21514234895",
+          appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
+        };
+
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Define o e-mail do administrador
+    const adminEmail = "fabricio@gmail.com";
+    const messageEl = document.getElementById("message");
+    const adminContentEl = document.getElementById("adminContent");
+
+    // Verifica o estado de autenticação
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.email === adminEmail) {
+          messageEl.textContent = "";
+          adminContentEl.classList.remove("hidden");
+        } else {
+          messageEl.textContent = "Acesso negado. Você não é o administrador.";
+        }
+      } else {
+        messageEl.textContent = "Usuário não autenticado.";
+      }
+    });
+
+    // Lida com o envio do formulário para adicionar produtos
+    const productForm = document.getElementById("productForm");
+    productForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("productName").value;
+      const price = parseFloat(document.getElementById("productPrice").value);
+
+      try {
+        // Adiciona um novo documento na coleção "produtos"
+        await addDoc(collection(db, "produtos"), { name, price });
+        alert("Produto adicionado com sucesso!");
+        productForm.reset();
+      } catch (error) {
+        alert("Erro ao adicionar produto: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
