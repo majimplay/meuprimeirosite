@@ -27,30 +27,45 @@
       .btn:hover {
         background-color: #0056b3;
       }
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Bem-vindo ao Nosso Site!<span id="usernameDisplay">Visitante</span>!</h1>
-        <script> 
+      <h1 id="welcomeMessage">Bem-vindo ao Nosso Site! <span id="usernameDisplay">Visitante</span></h1>
+
+      <script>
         // Recuperar o nome do usuário que foi registrado
         var loggedUser = localStorage.getItem('loggedUser');
+
         if (loggedUser) {
-        document.getElementById('usernameDisplay').textContent = loggedUser;
-           }
-          function logoff() {
+          // Se o usuário estiver logado, exibe o nome e o botão de logoff
+          document.getElementById('usernameDisplay').textContent = loggedUser;
+          document.getElementById('logoffButton').classList.remove('hidden');
+        } else {
+          // Se o usuário não estiver logado, mantém o botão de logoff oculto
+          document.getElementById('logoffButton').classList.add('hidden');
+        }
+
+        // Função de logoff
+        function logoff() {
           localStorage.removeItem('loggedUser'); // Remove o usuário da memória local
           document.getElementById('usernameDisplay').textContent = 'Visitante'; // Atualiza o nome do usuário na página
           alert('Você foi desconectado!'); // Alerta que o usuário foi desconectado
           window.location.reload(); // Recarrega a página para refletir o logoff
         }
-          
-        </script>
+      </script>
+
       <p>Escolha uma das opções abaixo:</p>
-      <a href="#" class="btn" onclick="logoff()">Logoff</a>
-         
-        <a href="loginfake.html" class="btn">loguin fake</a>
-       <a href="registro.html" class="btn">registrar</a>
+
+      <!-- Botão de logoff, inicialmente oculto -->
+      <a href="#" id="logoffButton" class="btn hidden" onclick="logoff()">Logoff</a>
+      
+      <!-- Outros botões -->
+      <a href="loginfake.html" class="btn">Login Fake</a>
+      <a href="registro.html" class="btn">Registrar</a>
       <a href="sobre.html" class="btn">Sobre Nós</a>
       <a href="construcao.html" class="btn">Página em Construção</a>
     </div>
