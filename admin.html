@@ -5,103 +5,240 @@
   <title>Painel Administrativo</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
-      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
       padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
+
     .hidden {
       display: none;
     }
-    form {
-      margin-top: 20px;
+
+    .admin-panel {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    label, input {
-      display: block;
-      margin: 10px auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #f8f9fa;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    input[type="text"], input[type="number"] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 150px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-edit {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .btn-delete {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-save {
+      background: #2196F3;
+      color: white;
+      margin-top: 1rem;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .welcome-banner {
+      background: #2196F3;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
     }
   </style>
 </head>
 <body>
-  <h1>Painel Administrativo</h1>
-  <div id="adminContent" class="hidden">
-    <h2>Adicionar Produto</h2>
+  <div class="welcome-banner hidden" id="userWelcome"></div>
+  
+  <div class="admin-panel hidden" id="adminContent">
+    <h2>📦 Gerenciamento de Produtos</h2>
+    
+    <!-- Formulário de Adição -->
     <form id="productForm">
-      <label for="productName">Nome do Produto:</label>
-      <input type="text" id="productName" required>
-      
-      <label for="productPrice">Preço:</label>
-      <input type="number" id="productPrice" step="0.01" required>
-      
-      <button type="submit">Adicionar Produto</button>
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+        <input type="text" id="productName" placeholder="Nome do Produto" required>
+        <input type="number" id="productPrice" step="0.01" placeholder="Preço" required>
+        <button type="submit" class="btn btn-edit">➕ Adicionar</button>
+      </div>
     </form>
+
+    <!-- Tabela de Produtos -->
+    <table id="productsTable">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Preço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <button onclick="saveAllChanges()" class="btn btn-save">💾 Salvar Todas as Alterações</button>
   </div>
+
   <p id="message">Carregando...</p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
-      authDomain: "gitautenticatio.firebaseapp.com",
-      projectId: "gitautenticatio",
-      storageBucket: "gitautenticatio.appspot.com",
-      messagingSenderId: "21514234895",
-      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
-    };
+    const firebaseConfig = { /* Suas configurações do Firebase */ };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
     
-    const adminEmail = "fabricio@gmail.com";
-    const messageEl = document.getElementById("message");
-    const adminContentEl = document.getElementById("adminContent");
+    let products = {};
+    let changes = {};
 
-    // Função para salvar produto
-    function salvarProduto(produtoId, nome, preco) {
-      return set(ref(database, 'produtos/' + produtoId), {
-        nome: nome,
-        preco: preco
+    function salvarProduto(produtoId, dados) {
+      return set(ref(database, `produtos/${produtoId}`), dados);
+    }
+
+    function carregarProdutos() {
+      const produtosRef = ref(database, 'produtos');
+      onValue(produtosRef, (snapshot) => {
+        products = snapshot.val() || {};
+        renderizarTabela();
       });
     }
 
+    function renderizarTabela() {
+      const tbody = document.querySelector('#productsTable tbody');
+      tbody.innerHTML = '';
+      
+      for(const [id, produto] of Object.entries(products)) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${produto.nome}</td>
+          <td>
+            <span class="price-display">${produto.preco.toFixed(2)}</span>
+            <input type="number" class="price-edit" value="${produto.preco}" step="0.01" hidden>
+          </td>
+          <td>
+            <button class="btn btn-edit" onclick="toggleEdit('${id}')">✏️ Editar</button>
+            <button class="btn btn-delete" onclick="excluirProduto('${id}')">🗑️ Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    window.toggleEdit = (id) => {
+      const row = document.querySelector(`tr:has(button[onclick="toggleEdit('${id}')"])`);
+      const display = row.querySelector('.price-display');
+      const input = row.querySelector('.price-edit');
+      
+      if(input.hidden) {
+        display.hidden = true;
+        input.hidden = false;
+        changes[id] = parseFloat(input.value);
+      } else {
+        display.textContent = parseFloat(input.value).toFixed(2);
+        display.hidden = false;
+        input.hidden = true;
+        changes[id] = parseFloat(input.value);
+      }
+    };
+
+    window.excluirProduto = async (id) => {
+      if(confirm('Tem certeza que deseja excluir este produto?')) {
+        await remove(ref(database, `produtos/${id}`));
+      }
+    };
+
+    window.saveAllChanges = async () => {
+      const updates = {};
+      for(const [id, novoPreco] of Object.entries(changes)) {
+        updates[`produtos/${id}/preco`] = novoPreco;
+      }
+      
+      try {
+        await update(ref(database), updates);
+        alert('Alterações salvas com sucesso!');
+        changes = {};
+      } catch (error) {
+        alert('Erro ao salvar alterações: ' + error.message);
+      }
+    };
+
+    // Autenticação
     onAuthStateChanged(auth, (user) => {
+      const messageEl = document.getElementById('message');
+      const adminContentEl = document.getElementById('adminContent');
+      const userWelcomeEl = document.getElementById('userWelcome');
+      
       if (user) {
-        if (user.email === adminEmail) {
-          messageEl.textContent = "";
-          adminContentEl.classList.remove("hidden");
+        userWelcomeEl.innerHTML = `👋 Bem-vindo, <strong>${user.email}</strong>`;
+        userWelcomeEl.classList.remove('hidden');
+        
+        if (user.email === "fabricio@gmail.com") {
+          adminContentEl.classList.remove('hidden');
+          messageEl.classList.add('hidden');
+          carregarProdutos();
         } else {
-          messageEl.textContent = "Acesso negado. Você não é o administrador.";
+          messageEl.textContent = "⚠️ Acesso restrito a administradores";
         }
       } else {
-        messageEl.textContent = "Usuário não autenticado.";
+        messageEl.textContent = "🔒 Faça login para continuar";
       }
     });
 
-    // Manipulador do formulário
-    const productForm = document.getElementById("productForm");
-    productForm.addEventListener("submit", (e) => {
+    // Adicionar Novo Produto
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById("productName").value;
-      const price = parseFloat(document.getElementById("productPrice").value);
-
-      // Cria uma nova referência com ID automático
-      const produtosRef = ref(database, 'produtos');
-      const newProductRef = push(produtosRef);
-      const produtoId = newProductRef.key;
-
-      // Usa a função salvarProduto
-      salvarProduto(produtoId, name, price)
-        .then(() => {
-          alert("Produto adicionado com sucesso!");
-          productForm.reset();
-        })
-        .catch((error) => {
-          alert("Erro ao adicionar produto: " + error.message);
-        });
+      const name = document.getElementById('productName').value;
+      const price = parseFloat(document.getElementById('productPrice').value);
+      
+      const newProductRef = push(ref(database, 'produtos'));
+      await salvarProduto(newProductRef.key, {
+        nome: name,
+        preco: price
+      });
+      
+      e.target.reset();
     });
   </script>
 </body>
