@@ -151,42 +151,6 @@
       border-radius: 4px;
     }
 
-     .upload-preview {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 60px;
-        border: 2px dashed #ccc;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .upload-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .upload-preview:hover .change-image {
-        display: flex;
-    }
-    
-    .change-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        color: white;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 12px;
-        text-align: center;
-        padding: 4px;
-    }
     
   </style>
 </head>
@@ -201,14 +165,12 @@
       <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
         <input type="text" id="productName" placeholder="Nome do Produto" required>
         <input type="number" id="productPrice" step="0.01" placeholder="Preço" required>
-      div class="image-upload">
-  <div class="upload-preview" id="imagePreview">
-    <label class="upload-label" id="uploadButton">
-      📸 Escolher Imagem
-      <input type="file" id="productImage" accept="image/*" required hidden>
-    </label>
-  </div>
-</div>
+        <div class="image-upload">
+          <label class="upload-label">
+            📸 Escolher Imagem
+            <input type="file" id="productImage" accept="image/*" required hidden>
+          </label>
+        </div>
         <button type="submit" class="btn btn-edit">➕ Adicionar</button>
       </div>
     </form>
@@ -311,14 +273,6 @@ function debounce(func, timeout = 300) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-          <div class="image-upload">
-           <div class="upload-preview" id="imagePreview">
-            <label class="upload-label">
-            <span class="change-image">Alterar<br>Imagem</span>
-            <input type="file" id="productImage" accept="image/*" required hidden>
-             </label>
-            </div>
-            </div>
             <div class="image-gallery">
               ${produto.imagens.map((url, index) => `
                 <div class="image-container">
@@ -472,32 +426,25 @@ window.adicionarImagem = async (productId) => {
     });
 
     // Adicionar Novo Produto
-const productImageInput = document.getElementById('productImage');
-const imagePreview = document.getElementById('imagePreview');
+  document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('productName').value;
+      const price = parseFloat(document.getElementById('productPrice').value);
+      const imageFile = document.getElementById('productImage').files[0];
 
-productImageInput.addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      imagePreview.innerHTML = `
-        <img src="${e.target.result}" alt="Pré-visualização" style="width: 100%; height: 100%; object-fit: cover;">
-        <span class="change-image" onclick="document.getElementById('productImage').click()">Alterar<br>Imagem</span>
-      `;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Opcional: Reseta a pré-visualização ao submeter o formulário
-document.getElementById('productForm').addEventListener('submit', () => {
-  imagePreview.innerHTML = `
-    <label class="upload-label" id="uploadButton">
-      📸 Escolher Imagem
-      <input type="file" id="productImage" accept="image/*" required hidden>
-    </label>
-  `;
-});
+      try {
+        const imageUrl = await uploadImage(imageFile);
+        const newProductRef = push(ref(database, 'produtos'));
+        await salvarProduto(newProductRef.key, {
+          nome: name,
+          preco: price,
+          imagens: [imageUrl]
+        });
+        e.target.reset();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
     
   </script>
 </body>
