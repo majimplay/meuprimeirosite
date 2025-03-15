@@ -24,7 +24,6 @@
 </head>
 <body>
   <h1>Painel Administrativo</h1>
-  <!-- Área de administração para adicionar produtos -->
   <div id="adminContent" class="hidden">
     <h2>Adicionar Produto</h2>
     <form id="productForm">
@@ -40,32 +39,35 @@
   <p id="message">Carregando...</p>
 
   <script type="module">
-    // Importando módulos do Firebase 9 (modular)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-         // Configurações do seu projeto Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
-          authDomain: "gitautenticatio.firebaseapp.com",
-          projectId: "gitautenticatio",
-          storageBucket: "gitautenticatio.firebasestorage.app",
-          messagingSenderId: "21514234895",
-          appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
+      authDomain: "gitautenticatio.firebaseapp.com",
+      projectId: "gitautenticatio",
+      storageBucket: "gitautenticatio.appspot.com",
+      messagingSenderId: "21514234895",
+      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
+    };
 
-    // Inicializa o Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Define o e-mail do administrador
+    const database = getDatabase(app);
+    
     const adminEmail = "fabricio@gmail.com";
     const messageEl = document.getElementById("message");
     const adminContentEl = document.getElementById("adminContent");
 
-    // Verifica o estado de autenticação
+    // Função para salvar produto
+    function salvarProduto(produtoId, nome, preco) {
+      return set(ref(database, 'produtos/' + produtoId), {
+        nome: nome,
+        preco: preco
+      });
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
         if (user.email === adminEmail) {
@@ -79,21 +81,27 @@
       }
     });
 
-    // Lida com o envio do formulário para adicionar produtos
+    // Manipulador do formulário
     const productForm = document.getElementById("productForm");
-    productForm.addEventListener("submit", async (e) => {
+    productForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const name = document.getElementById("productName").value;
       const price = parseFloat(document.getElementById("productPrice").value);
 
-      try {
-        // Adiciona um novo documento na coleção "produtos"
-        await addDoc(collection(db, "produtos"), { name, price });
-        alert("Produto adicionado com sucesso!");
-        productForm.reset();
-      } catch (error) {
-        alert("Erro ao adicionar produto: " + error.message);
-      }
+      // Cria uma nova referência com ID automático
+      const produtosRef = ref(database, 'produtos');
+      const newProductRef = push(produtosRef);
+      const produtoId = newProductRef.key;
+
+      // Usa a função salvarProduto
+      salvarProduto(produtoId, name, price)
+        .then(() => {
+          alert("Produto adicionado com sucesso!");
+          productForm.reset();
+        })
+        .catch((error) => {
+          alert("Erro ao adicionar produto: " + error.message);
+        });
     });
   </script>
 </body>
