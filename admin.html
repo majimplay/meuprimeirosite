@@ -151,6 +151,42 @@
       border-radius: 4px;
     }
 
+     .upload-preview {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .upload-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .upload-preview:hover .change-image {
+        display: flex;
+    }
+    
+    .change-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        text-align: center;
+        padding: 4px;
+    }
     
   </style>
 </head>
@@ -273,6 +309,14 @@ function debounce(func, timeout = 300) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
+          <div class="image-upload">
+           <div class="upload-preview" id="imagePreview">
+            <label class="upload-label">
+            <span class="change-image">Alterar<br>Imagem</span>
+            <input type="file" id="productImage" accept="image/*" required hidden>
+             </label>
+            </div>
+            </div>
             <div class="image-gallery">
               ${produto.imagens.map((url, index) => `
                 <div class="image-container">
@@ -426,24 +470,30 @@ window.adicionarImagem = async (productId) => {
     });
 
     // Adicionar Novo Produto
-  document.getElementById('productForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('productName').value;
-      const price = parseFloat(document.getElementById('productPrice').value);
-      const imageFile = document.getElementById('productImage').files[0];
+   document.getElementById('productImage').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('imagePreview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Pré-visualização">
+                    <span class="change-image">Alterar<br>Imagem</span>
+                `;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 
-      try {
-        const imageUrl = await uploadImage(imageFile);
-        const newProductRef = push(ref(database, 'produtos'));
-        await salvarProduto(newProductRef.key, {
-          nome: name,
-          preco: price,
-          imagens: [imageUrl]
-        });
-        e.target.reset();
-      } catch (error) {
-        alert(error.message);
-      }
+    // Resetar pré-visualização ao enviar o formulário
+    document.getElementById('productForm').addEventListener('submit', () => {
+        document.getElementById('imagePreview').innerHTML = `
+            <label class="upload-label">
+                📸 Escolher Imagem
+                <input type="file" id="productImage" accept="image/*" required hidden>
+            </label>
+        `;
     });
     
   </script>
