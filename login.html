@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Login com Firebase</title>
+  <title>Login com Firebase (Módulos)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,44 +50,45 @@
   </form>
   <p id="message"></p>
 
-  <!-- Scripts do Firebase (versões atuais) -->
-  <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
+  <script type="module">
+    // Import das funções necessárias do SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-  <script>
-    // CONFIGURAÇÃO DO SEU PROJETO FIREBASE
+    // Configuração do seu projeto Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
       authDomain: "gitautenticatio.firebaseapp.com",
       projectId: "gitautenticatio",
-      // ...
+      storageBucket: "gitautenticatio.firebasestorage.app",
+      messagingSenderId: "21514234895",
+      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
     };
 
-    // INICIALIZA O FIREBASE
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.getAuth(app);
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // LÓGICA DE LOGIN
+    // Lógica de login
     const form = document.getElementById('loginForm');
     const messageEl = document.getElementById('message');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
-      firebase.signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Se o login for bem-sucedido:
-          messageEl.style.color = 'green';
-          messageEl.textContent = 'Login efetuado com sucesso!';
-          // Exemplo: redirecionar para a página inicial
-          // window.location.href = 'index.html';
-        })
-        .catch((error) => {
-          messageEl.style.color = 'red';
-          messageEl.textContent = 'Erro ao entrar: ' + error.message;
-        });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        messageEl.style.color = 'green';
+        messageEl.textContent = 'Login efetuado com sucesso!';
+
+        // Se quiser redirecionar para a página inicial:
+        // window.location.href = 'index.html';
+      } catch (error) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = 'Erro ao entrar: ' + error.message;
+      }
     });
   </script>
 </body>
