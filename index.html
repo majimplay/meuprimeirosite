@@ -45,10 +45,11 @@
           // Se o usuário estiver logado, exibe o nome do usuário e o botão de logoff
           document.getElementById('usernameDisplay').textContent = loggedUser;
           document.getElementById('logoffButton').classList.remove('hidden');
-        } else {
+        } 
+        //else {
           // Se o usuário não estiver logado, o botão de logoff fica oculto
-          document.getElementById('logoffButton').classList.add('hidden');
-        }
+        //  document.getElementById('logoffButton').classList.add('hidden');
+       // }
 
         // Função para realizar o logoff
         function logoff() {
