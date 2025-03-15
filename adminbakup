@@ -85,6 +85,33 @@
       border-radius: 8px;
       margin-bottom: 2rem;
     }
+
+
+ img.product-image {
+      height: 50px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+    .image-upload {
+      position: relative;
+      display: inline-block;
+    }
+    .image-upload input[type="file"] {
+      display: none;
+    }
+    .upload-label {
+      background: #2196F3;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .upload-label:hover {
+      opacity: 0.9;
+    }
+    
+    
   </style>
 </head>
 <body>
@@ -93,11 +120,17 @@
   <div class="admin-panel hidden" id="adminContent">
     <h2>📦 Gerenciamento de Produtos</h2>
     
-    <!-- Formulário de Adição -->
+   <!-- Formulário de Adição -->
     <form id="productForm">
-      <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
         <input type="text" id="productName" placeholder="Nome do Produto" required>
         <input type="number" id="productPrice" step="0.01" placeholder="Preço" required>
+        <div class="image-upload">
+          <label class="upload-label">
+            📸 Escolher Imagem
+            <input type="file" id="productImage" accept="image/*" required hidden>
+          </label>
+        </div>
         <button type="submit" class="btn btn-edit">➕ Adicionar</button>
       </div>
     </form>
@@ -106,6 +139,7 @@
     <table id="productsTable">
       <thead>
         <tr>
+          <th>Imagem</th>
           <th>Produto</th>
           <th>Preço</th>
           <th>Ações</th>
@@ -125,35 +159,37 @@
     import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = {
- 
-
       apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
- 
-
       authDomain: "gitautenticatio.firebaseapp.com",
- 
-
       projectId: "gitautenticatio",
- 
-
       storageBucket: "gitautenticatio.appspot.com",
- 
-
       messagingSenderId: "21514234895",
- 
-
       appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
- 
-
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
-    
+
     let products = {};
     let changes = {};
 
+ async function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('https://postimages.org/json/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!data.status || data.status !== 200) {
+        throw new Error('Falha no upload da imagem');
+      }
+      return data.data.url;
+    }
+
+    
     function salvarProduto(produtoId, dados) {
       return set(ref(database, `produtos/${produtoId}`), dados);
     }
@@ -165,7 +201,6 @@
         renderizarTabela();
       });
     }
-
     function renderizarTabela() {
       const tbody = document.querySelector('#productsTable tbody');
       tbody.innerHTML = '';
@@ -173,6 +208,7 @@
       for(const [id, produto] of Object.entries(products)) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+          <td><img src="${produto.imagem}" class="product-image"></td>
           <td>${produto.nome}</td>
           <td>
             <span class="price-display">${produto.preco.toFixed(2)}</span>
@@ -248,19 +284,29 @@
     });
 
     // Adicionar Novo Produto
-    document.getElementById('productForm').addEventListener('submit', async (e) => {
+   document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('productName').value;
       const price = parseFloat(document.getElementById('productPrice').value);
-      
-      const newProductRef = push(ref(database, 'produtos'));
-      await salvarProduto(newProductRef.key, {
-        nome: name,
-        preco: price
-      });
-      
-      e.target.reset();
+      const imageFile = document.getElementById('productImage').files[0];
+
+      try {
+        const imageUrl = await uploadImage(imageFile);
+        
+        const newProductRef = push(ref(database, 'produtos'));
+        await salvarProduto(newProductRef.key, {
+          nome: name,
+          preco: price,
+          imagem: imageUrl
+        });
+        
+        e.target.reset();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
     });
+
+    
   </script>
 </body>
 </html>
