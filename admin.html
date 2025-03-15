@@ -201,12 +201,14 @@
       <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
         <input type="text" id="productName" placeholder="Nome do Produto" required>
         <input type="number" id="productPrice" step="0.01" placeholder="Preço" required>
-        <div class="image-upload">
-          <label class="upload-label">
-            📸 Escolher Imagem
-            <input type="file" id="productImage" accept="image/*" required hidden>
-          </label>
-        </div>
+      div class="image-upload">
+  <div class="upload-preview" id="imagePreview">
+    <label class="upload-label" id="uploadButton">
+      📸 Escolher Imagem
+      <input type="file" id="productImage" accept="image/*" required hidden>
+    </label>
+  </div>
+</div>
         <button type="submit" class="btn btn-edit">➕ Adicionar</button>
       </div>
     </form>
@@ -470,31 +472,32 @@ window.adicionarImagem = async (productId) => {
     });
 
     // Adicionar Novo Produto
-   document.getElementById('productImage').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('imagePreview');
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="Pré-visualização">
-                    <span class="change-image">Alterar<br>Imagem</span>
-                `;
-            }
-            reader.readAsDataURL(file);
-        }
-    });
+const productImageInput = document.getElementById('productImage');
+const imagePreview = document.getElementById('imagePreview');
 
-    // Resetar pré-visualização ao enviar o formulário
-    document.getElementById('productForm').addEventListener('submit', () => {
-        document.getElementById('imagePreview').innerHTML = `
-            <label class="upload-label">
-                📸 Escolher Imagem
-                <input type="file" id="productImage" accept="image/*" required hidden>
-            </label>
-        `;
-    });
+productImageInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      imagePreview.innerHTML = `
+        <img src="${e.target.result}" alt="Pré-visualização" style="width: 100%; height: 100%; object-fit: cover;">
+        <span class="change-image" onclick="document.getElementById('productImage').click()">Alterar<br>Imagem</span>
+      `;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Opcional: Reseta a pré-visualização ao submeter o formulário
+document.getElementById('productForm').addEventListener('submit', () => {
+  imagePreview.innerHTML = `
+    <label class="upload-label" id="uploadButton">
+      📸 Escolher Imagem
+      <input type="file" id="productImage" accept="image/*" required hidden>
+    </label>
+  `;
+});
     
   </script>
 </body>
