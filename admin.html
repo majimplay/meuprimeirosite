@@ -124,56 +124,26 @@
 </head>
 <body>
   <div class="admin-container">
-    <div class="welcome-banner">
-      <h1>🖼 Gerenciador de Produtos</h1>
-      <div id="userWelcome"></div>
-    </div>
+    <!-- ... (mantenha o HTML anterior inalterado) ... -->
 
-    <!-- Formulário de Produto -->
-    <form id="productForm" class="produto-form">
-      <div class="form-grid">
-        <div>
-          <label>Nome do Produto</label>
-          <input type="text" id="productName" required>
-        </div>
-        
-        <div>
-          <label>Preço (R$)</label>
-          <input type="number" id="productPrice" step="0.01" required>
-        </div>
-
-    <div>
-      <label>Imagem do Produto</label>
-      <input type="file" id="productImage" accept="image/*" required>
-      <div class="upload-status" id="uploadStatus"></div>
-      <img id="imagePreview" class="image-preview">
-    </div>
-            <div style="text-align: center; padding-top: 40px; color: #666">Clique para adicionar imagem</div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">➕ Adicionar Produto</button>
-      </div>
-    </form>
-
-    <!-- Galeria de Produtos -->
-    <div class="galeria-produtos" id="productsGrid"></div>
-  </div>
-
-  <script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-
-        const firebaseConfig = {
-       apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",    authDomain: "gitautenticatio.firebaseapp.com",    projectId: "gitautenticatio",   storageBucket: "gitautenticatio.appspot.com",  messagingSenderId: "21514234895",   appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
+      authDomain: "gitautenticatio.firebaseapp.com",
+      projectId: "gitautenticatio",
+      messagingSenderId: "21514234895",
+      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
-  
+
+    // Função para upload de imagem no PostImages
     async function uploadImage(file) {
       const formData = new FormData();
       formData.append('file', file);
@@ -186,7 +156,7 @@
         
         const data = await response.json();
         if(data.status === 200) {
-          return data.url.replace('/th/', '/'); // Pega a URL original sem thumbnail
+          return data.url.replace('/th/', '/');
         }
         throw new Error('Falha no upload da imagem');
       } catch (error) {
@@ -196,14 +166,27 @@
       }
     }
 
-    // Modifique o submit do formulário
+    // Preview da imagem
+    document.getElementById('productImage').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('imagePreview');
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Submit do formulário
     document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const imageFile = document.getElementById('productImage').files[0];
       if(!imageFile) return alert('Selecione uma imagem!');
 
-      // Mostrar status do upload
       const uploadStatus = document.getElementById('uploadStatus');
       uploadStatus.textContent = 'Enviando imagem...';
       uploadStatus.style.display = 'block';
@@ -230,51 +213,6 @@
         uploadStatus.textContent = 'Erro no cadastro!';
         console.error(error);
       }
-    });
-
-    
-    let currentProductImage = null;
-
-    // Preview da imagem
-    document.getElementById('productImage').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      const preview = document.getElementById('imagePreview');
-      
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.style.backgroundImage = `url(${e.target.result})`;
-          preview.innerHTML = '';
-          currentProductImage = file;
-        }
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Upload de imagem
-    async function uploadImage(file, productId) {
-      const reference = storageRef(storage, `produtos/${productId}/${file.name}`);
-      await uploadBytes(reference, file);
-      return await getDownloadURL(reference);
-    }
-
-    // Adicionar novo produto
-    document.getElementById('productForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const productId = push(ref(database, 'produtos')).key;
-      const imageUrl = await uploadImage(currentProductImage, productId);
-
-      await set(ref(database, `produtos/${productId}`), {
-        nome: document.getElementById('productName').value,
-        preco: parseFloat(document.getElementById('productPrice').value),
-        imagem: imageUrl,
-        dataCriacao: new Date().toISOString()
-      });
-
-      e.target.reset();
-      document.getElementById('imagePreview').style.backgroundImage = '';
-      currentProductImage = null;
     });
 
     // Carregar produtos
@@ -306,18 +244,11 @@
     // Excluir produto
     window.excluirProduto = async (productId) => {
       if (confirm('Excluir este produto permanentemente?')) {
-        // Remover imagem do Storage
-        const imageRef = storageRef(storage, `produtos/${productId}`);
-        await deleteObject(imageRef);
-        
-        // Remover do Database
         await remove(ref(database, `produtos/${productId}`));
       }
     };
 
-  
-
-    // Sistema de Autenticação
+    // Autenticação
     onAuthStateChanged(auth, (user) => {
       if (user && user.email === 'fabricio@gmail.com') {
         document.getElementById('userWelcome').innerHTML = `
@@ -325,7 +256,7 @@
         `;
         carregarProdutos();
       } else {
-        window.location.href = '/login.html'; // Redirecionar para login
+        window.location.href = '/login.html';
       }
     });
   </script>
