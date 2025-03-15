@@ -34,64 +34,69 @@
   </head>
   <body>
     <div class="container">
-    <h1 id="welcomeMessage">Bem-vindo ao Nosso Site! <span id="usernameDisplay">Visitante</span>  
-<p id="userInfo">Carregando...</p>
-   <button id="logoutBtn">Sair</button>  </h1>
-
-   
+      <!-- Mensagem de boas-vindas: padrão para visitante -->
+      <h1 id="welcomeMessage">Bem-vindo ao Nosso Site! Visitante</h1>
+      <button id="logoutBtn" class="hidden">Sair</button>
+      <p id="userInfo">Carregando...</p>
       
-        <script type="module">
- // Import das funções do SDK (versão de módulo)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+      <script type="module">
+        // Import das funções do Firebase (versão de módulo)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-// Configurações do seu projeto Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
-      authDomain: "gitautenticatio.firebaseapp.com",
-      projectId: "gitautenticatio",
-      storageBucket: "gitautenticatio.firebasestorage.app",
-      messagingSenderId: "21514234895",
-      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
-    };
+        // Configurações do seu projeto Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
+          authDomain: "gitautenticatio.firebaseapp.com",
+          projectId: "gitautenticatio",
+          storageBucket: "gitautenticatio.firebasestorage.app",
+          messagingSenderId: "21514234895",
+          appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
+        };
 
-          // Inicializa o Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-         // Elementos de interface
-          const userInfoEl = document.getElementById('userInfo');
-          const logoutBtn = document.getElementById('logoutBtn');    
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
+        // Elementos de interface
+        const welcomeMessageEl = document.getElementById('welcomeMessage');
+        const userInfoEl = document.getElementById('userInfo');
+        const logoutBtn = document.getElementById('logoutBtn');
 
- // Verifica se há usuário logado
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Usuário está logado
-        userInfoEl.textContent = `Usuário logado: ${user.email}`;
-      } else {
-        // Ninguém logado
-        userInfoEl.textContent = "Nenhum usuário logado.";
-      }
-    });
-          
-// Botão para sair (logout)
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth)
-        .then(() => {
-          userInfoEl.textContent = "Você saiu da conta.";
-        })
-        .catch((error) => {
-          userInfoEl.textContent = "Erro ao sair: " + error.message;
+        // Verifica se há usuário logado
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            // Se o usuário estiver logado, extrai somente o nome (antes do @)
+            const username = user.email.split('@')[0];
+            welcomeMessageEl.textContent = `Bem-vindo ao Nosso Site! ${username}`;
+            userInfoEl.textContent = "";  // Limpa o texto de carregamento
+            logoutBtn.classList.remove('hidden');
+          } else {
+            // Caso não haja usuário logado
+            welcomeMessageEl.textContent = "Bem-vindo ao Nosso Site! Visitante";
+            userInfoEl.textContent = "Nenhum usuário logado.";
+            logoutBtn.classList.add('hidden');
+          }
         });
-    });
-  </script>
+
+        // Função para realizar logout
+        logoutBtn.addEventListener('click', () => {
+          signOut(auth)
+            .then(() => {
+              welcomeMessageEl.textContent = "Bem-vindo ao Nosso Site! Visitante";
+              userInfoEl.textContent = "Você saiu da conta.";
+              logoutBtn.classList.add('hidden');
+            })
+            .catch((error) => {
+              userInfoEl.textContent = "Erro ao sair: " + error.message;
+            });
+        });
+      </script>
 
       <p>Escolha uma das opções abaixo:</p>
 
-     
-      
-      <!-- Outros botões -->
-      <a href="login.html" class="btn">Login </a>
+      <!-- Botões para navegação -->
+      <a href="login.html" class="btn">Login</a>
       <a href="register.html" class="btn">Registrar</a>
       <a href="sobre.html" class="btn">Sobre Nós</a>
       <a href="construcao.html" class="btn">Página em Construção</a>
