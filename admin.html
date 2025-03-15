@@ -2,264 +2,331 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Painel Administrativo</title>
+  <title>Loja Virtual - Admin</title>
   <style>
+    :root {
+      --cor-primaria: #2c3e50;
+      --cor-secundaria: #3498db;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
+      font-family: 'Arial', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
       padding: 20px;
+    }
+
+    .admin-container {
       max-width: 1200px;
       margin: 0 auto;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    .admin-panel {
+    .produto-form {
       background: white;
       padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 150px;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .imagem-preview {
+      width: 120px;
+      height: 120px;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .galeria-produtos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .produto-card {
+      background: white;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
     }
 
-    table {
+    .produto-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .produto-imagem {
       width: 100%;
-      border-collapse: collapse;
-      margin: 2rem 0;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 2px solid #eee;
     }
 
-    th, td {
+    .produto-info {
       padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
     }
 
-    th {
-      background: #f8f9fa;
-    }
-
-    tr:hover {
-      background: #f9f9f9;
-    }
-
-    input[type="text"], input[type="number"] {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      width: 150px;
+    .acoes-produto {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-top: 1px solid #eee;
     }
 
     .btn {
       padding: 8px 16px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--cor-secundaria);
+      color: white;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
     }
 
     .btn-edit {
-      background: #4CAF50;
+      background: #27ae60;
       color: white;
     }
 
-    .btn-delete {
-      background: #f44336;
-      color: white;
+    /* Mantenha os estilos anteriores e adicione: */
+    .upload-status {
+      color: green;
+      margin-top: 10px;
+      display: none;
     }
-
-    .btn-save {
-      background: #2196F3;
-      color: white;
-      margin-top: 1rem;
-    }
-
-    .btn:hover {
-      opacity: 0.9;
-    }
-
-    .welcome-banner {
-      background: #2196F3;
-      color: white;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
+    .image-preview {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 10px 0;
+      border: 2px dashed #ccc;
     }
   </style>
 </head>
 <body>
-  <div class="welcome-banner hidden" id="userWelcome"></div>
-  
-  <div class="admin-panel hidden" id="adminContent">
-    <h2>📦 Gerenciamento de Produtos</h2>
-    
-    <!-- Formulário de Adição -->
-    <form id="productForm">
-      <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-        <input type="text" id="productName" placeholder="Nome do Produto" required>
-        <input type="number" id="productPrice" step="0.01" placeholder="Preço" required>
-        <button type="submit" class="btn btn-edit">➕ Adicionar</button>
+  <div class="admin-container">
+    <div class="welcome-banner">
+      <h1>🖼 Gerenciador de Produtos</h1>
+      <div id="userWelcome"></div>
+    </div>
+
+    <!-- Formulário de Produto -->
+    <form id="productForm" class="produto-form">
+      <div class="form-grid">
+        <div>
+          <label>Nome do Produto</label>
+          <input type="text" id="productName" required>
+        </div>
+        
+        <div>
+          <label>Preço (R$)</label>
+          <input type="number" id="productPrice" step="0.01" required>
+        </div>
+
+    <div>
+      <label>Imagem do Produto</label>
+      <input type="file" id="productImage" accept="image/*" required>
+      <div class="upload-status" id="uploadStatus"></div>
+      <img id="imagePreview" class="image-preview">
+    </div>
+            <div style="text-align: center; padding-top: 40px; color: #666">Clique para adicionar imagem</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">➕ Adicionar Produto</button>
       </div>
     </form>
 
-    <!-- Tabela de Produtos -->
-    <table id="productsTable">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Preço</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    
-    <button onclick="saveAllChanges()" class="btn btn-save">💾 Salvar Todas as Alterações</button>
+    <!-- Galeria de Produtos -->
+    <div class="galeria-produtos" id="productsGrid"></div>
   </div>
-
-  <p id="message">Carregando...</p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
 
         const firebaseConfig = {
- 
-
-      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
- 
-
-      authDomain: "gitautenticatio.firebaseapp.com",
- 
-
-      projectId: "gitautenticatio",
- 
-
-      storageBucket: "gitautenticatio.appspot.com",
- 
-
-      messagingSenderId: "21514234895",
- 
-
-      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
- 
-
-    };
+       apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",    authDomain: "gitautenticatio.firebaseapp.com",    projectId: "gitautenticatio",   storageBucket: "gitautenticatio.appspot.com",  messagingSenderId: "21514234895",   appId: "1:21514234895:web:d34dc4c44baf586d2cc77a"
+      };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
-    
-    let products = {};
-    let changes = {};
-
-    function salvarProduto(produtoId, dados) {
-      return set(ref(database, `produtos/${produtoId}`), dados);
-    }
-
-    function carregarProdutos() {
-      const produtosRef = ref(database, 'produtos');
-      onValue(produtosRef, (snapshot) => {
-        products = snapshot.val() || {};
-        renderizarTabela();
-      });
-    }
-
-    function renderizarTabela() {
-      const tbody = document.querySelector('#productsTable tbody');
-      tbody.innerHTML = '';
-      
-      for(const [id, produto] of Object.entries(products)) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${produto.nome}</td>
-          <td>
-            <span class="price-display">${produto.preco.toFixed(2)}</span>
-            <input type="number" class="price-edit" value="${produto.preco}" step="0.01" hidden>
-          </td>
-          <td>
-            <button class="btn btn-edit" onclick="toggleEdit('${id}')">✏️ Editar</button>
-            <button class="btn btn-delete" onclick="excluirProduto('${id}')">🗑️ Excluir</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    window.toggleEdit = (id) => {
-      const row = document.querySelector(`tr:has(button[onclick="toggleEdit('${id}')"])`);
-      const display = row.querySelector('.price-display');
-      const input = row.querySelector('.price-edit');
-      
-      if(input.hidden) {
-        display.hidden = true;
-        input.hidden = false;
-        changes[id] = parseFloat(input.value);
-      } else {
-        display.textContent = parseFloat(input.value).toFixed(2);
-        display.hidden = false;
-        input.hidden = true;
-        changes[id] = parseFloat(input.value);
-      }
-    };
-
-    window.excluirProduto = async (id) => {
-      if(confirm('Tem certeza que deseja excluir este produto?')) {
-        await remove(ref(database, `produtos/${id}`));
-      }
-    };
-
-    window.saveAllChanges = async () => {
-      const updates = {};
-      for(const [id, novoPreco] of Object.entries(changes)) {
-        updates[`produtos/${id}/preco`] = novoPreco;
-      }
+  
+    async function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('file', file);
       
       try {
-        await update(ref(database), updates);
-        alert('Alterações salvas com sucesso!');
-        changes = {};
-      } catch (error) {
-        alert('Erro ao salvar alterações: ' + error.message);
-      }
-    };
-
-    // Autenticação
-    onAuthStateChanged(auth, (user) => {
-      const messageEl = document.getElementById('message');
-      const adminContentEl = document.getElementById('adminContent');
-      const userWelcomeEl = document.getElementById('userWelcome');
-      
-      if (user) {
-        userWelcomeEl.innerHTML = `👋 Bem-vindo, <strong>${user.email}</strong>`;
-        userWelcomeEl.classList.remove('hidden');
+        const response = await fetch('https://postimages.org/json', {
+          method: 'POST',
+          body: formData
+        });
         
-        if (user.email === "fabricio@gmail.com") {
-          adminContentEl.classList.remove('hidden');
-          messageEl.classList.add('hidden');
-          carregarProdutos();
-        } else {
-          messageEl.textContent = "⚠️ Acesso restrito a administradores";
+        const data = await response.json();
+        if(data.status === 200) {
+          return data.url.replace('/th/', '/'); // Pega a URL original sem thumbnail
         }
-      } else {
-        messageEl.textContent = "🔒 Faça login para continuar";
+        throw new Error('Falha no upload da imagem');
+      } catch (error) {
+        console.error('Erro no upload:', error);
+        alert('Erro ao enviar imagem! Tente novamente.');
+        throw error;
+      }
+    }
+
+    // Modifique o submit do formulário
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const imageFile = document.getElementById('productImage').files[0];
+      if(!imageFile) return alert('Selecione uma imagem!');
+
+      // Mostrar status do upload
+      const uploadStatus = document.getElementById('uploadStatus');
+      uploadStatus.textContent = 'Enviando imagem...';
+      uploadStatus.style.display = 'block';
+
+      try {
+        const imageUrl = await uploadImage(imageFile);
+        
+        const newProduct = {
+          nome: document.getElementById('productName').value,
+          preco: parseFloat(document.getElementById('productPrice').value),
+          imagem: imageUrl,
+          data: new Date().toISOString()
+        };
+
+        const newRef = push(ref(database, 'produtos'));
+        await set(newRef, newProduct);
+        
+        uploadStatus.textContent = 'Produto cadastrado com sucesso!';
+        setTimeout(() => uploadStatus.style.display = 'none', 2000);
+        e.target.reset();
+        document.getElementById('imagePreview').src = '';
+
+      } catch (error) {
+        uploadStatus.textContent = 'Erro no cadastro!';
+        console.error(error);
       }
     });
 
-    // Adicionar Novo Produto
+    
+    let currentProductImage = null;
+
+    // Preview da imagem
+    document.getElementById('productImage').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('imagePreview');
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.style.backgroundImage = `url(${e.target.result})`;
+          preview.innerHTML = '';
+          currentProductImage = file;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Upload de imagem
+    async function uploadImage(file, productId) {
+      const reference = storageRef(storage, `produtos/${productId}/${file.name}`);
+      await uploadBytes(reference, file);
+      return await getDownloadURL(reference);
+    }
+
+    // Adicionar novo produto
     document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('productName').value;
-      const price = parseFloat(document.getElementById('productPrice').value);
       
-      const newProductRef = push(ref(database, 'produtos'));
-      await salvarProduto(newProductRef.key, {
-        nome: name,
-        preco: price
+      const productId = push(ref(database, 'produtos')).key;
+      const imageUrl = await uploadImage(currentProductImage, productId);
+
+      await set(ref(database, `produtos/${productId}`), {
+        nome: document.getElementById('productName').value,
+        preco: parseFloat(document.getElementById('productPrice').value),
+        imagem: imageUrl,
+        dataCriacao: new Date().toISOString()
       });
-      
+
       e.target.reset();
+      document.getElementById('imagePreview').style.backgroundImage = '';
+      currentProductImage = null;
+    });
+
+    // Carregar produtos
+    function carregarProdutos() {
+      onValue(ref(database, 'produtos'), (snapshot) => {
+        const productsGrid = document.getElementById('productsGrid');
+        productsGrid.innerHTML = '';
+        
+        snapshot.forEach((childSnapshot) => {
+          const produto = childSnapshot.val();
+          const productCard = document.createElement('div');
+          productCard.className = 'produto-card';
+          productCard.innerHTML = `
+            <img src="${produto.imagem}" class="produto-imagem">
+            <div class="produto-info">
+              <h3>${produto.nome}</h3>
+              <p>R$ ${produto.preco.toFixed(2)}</p>
+            </div>
+            <div class="acoes-produto">
+              <button class="btn btn-edit" onclick="editarProduto('${childSnapshot.key}')">✏️ Editar</button>
+              <button class="btn btn-danger" onclick="excluirProduto('${childSnapshot.key}')">🗑️ Excluir</button>
+            </div>
+          `;
+          productsGrid.appendChild(productCard);
+        });
+      });
+    }
+
+    // Excluir produto
+    window.excluirProduto = async (productId) => {
+      if (confirm('Excluir este produto permanentemente?')) {
+        // Remover imagem do Storage
+        const imageRef = storageRef(storage, `produtos/${productId}`);
+        await deleteObject(imageRef);
+        
+        // Remover do Database
+        await remove(ref(database, `produtos/${productId}`));
+      }
+    };
+
+  
+
+    // Sistema de Autenticação
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === 'fabricio@gmail.com') {
+        document.getElementById('userWelcome').innerHTML = `
+          👋 Bem-vindo, ${user.email} | <button onclick="auth.signOut()" class="btn btn-danger">Sair</button>
+        `;
+        carregarProdutos();
+      } else {
+        window.location.href = '/login.html'; // Redirecionar para login
+      }
     });
   </script>
 </body>
