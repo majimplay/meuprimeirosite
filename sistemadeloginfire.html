@@ -84,6 +84,12 @@
       background: #c82333;
       border-color: #bd2130;
     }
+    .user-info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
     .admin-panel {
       display: none;
       justify-content: center;
@@ -189,10 +195,10 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
 
     // Monitorar estado de autenticação
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged((user) => {
       updateAuthUI(user);
       if (user) {
-        await checkAdminStatus(user.uid);
+        checkAdminStatus(user.uid);
       }
     });
 
@@ -206,16 +212,6 @@
       }
     });
 
-    // Verificar status de administrador
-    async function checkAdminStatus(uid) {
-      try {
-        const snapshot = await database.ref('admins/' + uid).once('value');
-        document.getElementById('adminPanel').style.display = snapshot.exists() ? 'flex' : 'none';
-      } catch (error) {
-        console.error('Erro ao verificar admin:', error);
-      }
-    }
-
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
@@ -226,16 +222,38 @@
       }
     });
 
-    // Atualizar interface
+    // Verificar se o usuário é administrador a partir do Realtime Database
+    async function checkAdminStatus(uid) {
+      try {
+        const snapshot = await database.ref('admins/' + uid).once('value');
+        if (snapshot.exists()) {
+          document.getElementById('adminPanel').style.display = 'flex';
+        } else {
+          document.getElementById('adminPanel').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Erro ao verificar status de administrador:', error);
+      }
+    }
+
+    // Atualizar interface do usuário
     function updateAuthUI(user) {
       const loginArea = document.getElementById('loginArea');
       const userArea = document.getElementById('userArea');
-      
+      const welcomeUser = document.getElementById('welcomeUser');
+
       if (user) {
         loginArea.style.display = 'none';
         userArea.style.display = 'flex';
+
+        // Define o nome de exibição (ou parte do e-mail, se displayName estiver ausente)
         const displayName = user.displayName || user.email.split('@')[0];
-        document.getElementById('welcomeUser').textContent = `Bem-vindo 😘, ${displayName}!`;
+        welcomeUser.innerHTML = `Bem-vindo 😘, ${displayName}!`;
+
+        // Exibe a foto de perfil, se disponível
+        if (user.photoURL) {
+          welcomeUser.innerHTML += `<img src="${user.photoURL}" alt="Foto de Perfil">`;
+        }
       } else {
         loginArea.style.display = 'flex';
         userArea.style.display = 'none';
