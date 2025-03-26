@@ -197,4 +197,51 @@
     });
 
     // Login com Google
-    document.getElementById('googleLoginBtn').addEventListener('click
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+      try {
+        const result = await auth.signInWithPopup(googleProvider);
+        alert(`Bem-vindo ${result.user.displayName}!`);
+      } catch (error) {
+        alert('Erro no login com Google: ' + error.message);
+      }
+    });
+
+    // Verificar status de administrador
+    async function checkAdminStatus(uid) {
+      try {
+        const snapshot = await database.ref('admins/' + uid).once('value');
+        document.getElementById('adminPanel').style.display = snapshot.exists() ? 'flex' : 'none';
+      } catch (error) {
+        console.error('Erro ao verificar admin:', error);
+      }
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await auth.signOut();
+        alert('Logout realizado com sucesso!');
+      } catch (error) {
+        alert('Erro ao sair: ' + error.message);
+      }
+    });
+
+    // Atualizar interface
+    function updateAuthUI(user) {
+      const loginArea = document.getElementById('loginArea');
+      const userArea = document.getElementById('userArea');
+      
+      if (user) {
+        loginArea.style.display = 'none';
+        userArea.style.display = 'flex';
+        const displayName = user.displayName || user.email.split('@')[0];
+        document.getElementById('welcomeUser').textContent = `Bem-vindo 😘, ${displayName}!`;
+      } else {
+        loginArea.style.display = 'flex';
+        userArea.style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
