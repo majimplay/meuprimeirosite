@@ -29,11 +29,9 @@
       display: flex;
       align-items: center;
     }
-    .login-form input {
-      margin-right: 5px;
-      padding: 5px;
-      border: none;
-      border-radius: 3px;
+    .login-form p {
+      margin-right: 10px;
+      font-weight: bold;
     }
     .login-form button,
     .user-info button {
@@ -147,10 +145,7 @@
     </div>
     <div class="auth-area">
       <div id="loginArea" class="login-form">
-        <input type="email" id="emailInput" placeholder="E-mail">
-        <input type="password" id="passwordInput" placeholder="Senha">
-        <button id="loginBtn">Entrar 🔑</button>
-        <a href="#" id="forgotPasswordLink" rel="noopener noreferrer">Esqueci a senha 🤦‍♀️</a>
+        <p>Só aceitamos login por rede social</p>
         <button id="googleLoginBtn" class="google-btn">
           <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -201,79 +196,5 @@
       }
     });
 
-    // Login com E-mail/Senha
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('emailInput').value;
-      const password = document.getElementById('passwordInput').value;
-
-      try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        alert(`Bem-vindo ${userCredential.user.email}!`);
-      } catch (error) {
-        alert('Erro no login: ' + error.message);
-      }
-    });
-
     // Login com Google
-    document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-      try {
-        const result = await auth.signInWithPopup(googleProvider);
-        alert(`Bem-vindo ${result.user.displayName}!`);
-      } catch (error) {
-        alert('Erro no login com Google: ' + error.message);
-      }
-    });
-
-    // Verificar status de administrador
-    async function checkAdminStatus(uid) {
-      try {
-        const snapshot = await database.ref('admins/' + uid).once('value');
-        document.getElementById('adminPanel').style.display = snapshot.exists() ? 'flex' : 'none';
-      } catch (error) {
-        console.error('Erro ao verificar admin:', error);
-      }
-    }
-
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      try {
-        await auth.signOut();
-        alert('Logout realizado com sucesso!');
-      } catch (error) {
-        alert('Erro ao sair: ' + error.message);
-      }
-    });
-
-    // Recuperação de senha
-    document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = prompt('Digite seu e-mail para redefinir a senha:');
-      if (email) {
-        try {
-          await auth.sendPasswordResetEmail(email);
-          alert('E-mail de redefinição enviado!');
-        } catch (error) {
-          alert('Erro ao enviar e-mail: ' + error.message);
-        }
-      }
-    });
-
-    // Atualizar interface
-    function updateAuthUI(user) {
-      const loginArea = document.getElementById('loginArea');
-      const userArea = document.getElementById('userArea');
-      
-      if (user) {
-        loginArea.style.display = 'none';
-        userArea.style.display = 'flex';
-        const displayName = user.displayName || user.email.split('@')[0];
-        document.getElementById('welcomeUser').textContent = `Bem-vindo 😘, ${displayName}!`;
-      } else {
-        loginArea.style.display = 'flex';
-        userArea.style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'none';
-      }
-    }
-  </script>
-</body>
-</html>
+    document.getElementById('googleLoginBtn').addEventListener('click
