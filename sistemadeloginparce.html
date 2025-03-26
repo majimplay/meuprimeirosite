@@ -1,152 +1,132 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Login</title>
-    <style>
-        /* Estilos mantidos do original */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 1em;
-        }
-
-        nav a.active {
-            border-bottom: 2px solid white;
-        }
-
-        .content {
-            padding: 2em;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .login-container {
-            background-color: white;
-            padding: 2em;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        form div {
-            margin-bottom: 1em;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5em;
-        }
-
-        input {
-            width: 100%;
-            padding: 0.5em;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-
-        button {
-            background-color: #333;
-            color: white;
-            padding: 0.5em 1em;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #555;
-        }
-
-        .toggle-form {
-            text-align: center;
-            margin-top: 1em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Login - Minha Loja</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo h2 {
+      margin: 0;
+    }
+    .auth-area {
+      display: flex;
+      align-items: center;
+    }
+    .login-form {
+      display: flex;
+      align-items: center;
+    }
+    .login-form input {
+      margin-right: 5px;
+      padding: 5px;
+      border: none;
+      border-radius: 3px;
+    }
+    .login-form button {
+      padding: 5px 10px;
+      border: 2px solid transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      background: #28a745;
+      color: white;
+    }
+    .google-btn {
+      background: white;
+      color: #757575;
+      border: 2px solid #ddd;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .google-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+  </style>
+  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client"></script>
 </head>
 <body>
-    <header>
-        <h1>Loja Virtual</h1>
-        <nav>
-            <a href="sistemadelogin.html" class="active">Login</a>
-            <a href="produtosavenda.html">Produtos</a>
-        </nav>
-    </header>
-
-    <div class="content">
-        <section id="login" class="login-container">
-            <form id="loginForm" onsubmit="logar(event)">
-                <h2>Login</h2>
-                <div>
-                    <label for="username">Usuário:</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div>
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit">Entrar</button>
-            </form>
-
-            <div class="toggle-form">
-                <button onclick="toggleForm()">Criar nova conta</button>
-            </div>
-
-            <form id="registerForm" style="display: none;" onsubmit="cadastrar(event)">
-                <h2>Criar Conta</h2>
-                <div>
-                    <label for="newUsername">Usuário:</label>
-                    <input type="text" id="newUsername" required>
-                </div>
-                <div>
-                    <label for="newPassword">Senha:</label>
-                    <input type="password" id="newPassword" required>
-                </div>
-                <button type="submit">Registrar</button>
-            </form>
-        </section>
+  <header>
+    <div class="logo">
+      <h2>Minha Loja🎁</h2>
     </div>
+    <div class="auth-area">
+      <div id="loginArea" class="login-form">
+        <input type="text" id="usernameInput" placeholder="Nome">
+        <input type="password" id="passwordInput" placeholder="Senha">
+        <button id="loginBtn">Entrar 🔑</button>
+        <button id="googleLoginBtn" class="google-btn">
+          <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+            <!-- SVG do Google -->
+          </svg>
+          Entrar com Gogo
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <script>
-        function toggleForm() {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
-            registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
-        }
+  <script>
+    Parse.initialize("TYP8SUA8qxmHIRs1mHbiFalgRxCEf51sOiSWmNEY", "n4Gfko9sO7jiAUnWX5U5GGCDQ5QtPWX97K4TzB8I");
+    Parse.serverURL = "https://parseapi.back4app.com";
 
-        function logar(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            // Lógica de login aqui
-            alert(`Login attempt: ${username}`);
-        }
+    let googleClient;
 
-        function cadastrar(event) {
-            event.preventDefault();
-            const newUsername = document.getElementById('newUsername').value;
-            const newPassword = document.getElementById('newPassword').value;
-            // Lógica de cadastro aqui
-            alert(`Registration attempt: ${newUsername}`);
-            toggleForm();
+    function initializeGoogleSignIn() {
+      googleClient = google.accounts.oauth2.initTokenClient({
+        client_id: '21514234895-keiqos567ifvs4hjkg3l1q5mvun8lri0.apps.googleusercontent.com',
+        scope: 'email profile openid',
+        callback: async (response) => {
+          if (response.error) return;
+          try {
+            const user = await Parse.User.logInWith('google', {
+              authData: {
+                id: parseJwt(response.id_token).sub,
+                access_token: response.access_token,
+                id_token: response.id_token
+              }
+            });
+            window.location.href = 'produtosavenda.html';
+          } catch (error) {
+            alert('Erro na autenticação: ' + error.message);
+          }
         }
-    </script>
+      });
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      try {
+        await Parse.User.logIn(
+          document.getElementById('usernameInput').value,
+          document.getElementById('passwordInput').value
+        );
+        window.location.href = 'produtosavenda.html';
+      } catch (error) {
+        alert('Erro no login: ' + error.message);
+      }
+    });
+
+    document.getElementById('googleLoginBtn').addEventListener('click', () => {
+      googleClient.requestAccessToken();
+    });
+
+    document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
+  </script>
 </body>
 </html>
