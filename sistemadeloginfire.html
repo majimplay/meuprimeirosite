@@ -4,220 +4,80 @@
   <meta charset="UTF-8">
   <title>Minha Loja Virtual</title>
   <style>
-    /* Mantive o mesmo CSS original, removendo apenas o .google-btn */
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
-    }
-    header {
-      background: #007BFF;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header .logo h2 {
-      margin: 0;
-    }
-    .auth-area {
-      display: flex;
-      align-items: center;
-    }
-    .login-form, .user-info {
-      display: flex;
-      align-items: center;
-    }
-    .login-form input {
-      margin-right: 5px;
-      padding: 5px;
-      border: none;
-      border-radius: 3px;
-    }
-    .login-form button,
-    .user-info button {
-      padding: 5px 10px;
-      border: 2px solid transparent;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-    .login-form button {
-      background: #28a745;
-      color: white;
-    }
-    .login-form button:hover {
-      background: #218838;
-      border-color: #1e7e34;
-    }
-    .login-form a {
-      margin-left: 10px;
-      color: white;
-      text-decoration: none;
-      padding: 5px 10px;
-      border: 2px solid transparent;
-      border-radius: 3px;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-    .login-form a:hover {
-      background-color: rgba(255,255,255,0.2);
-      border-color: #fff;
-    }
-    .user-info a {
-      margin-left: 10px;
-      color: white;
-      text-decoration: none;
-      padding: 5px 10px;
-      border: 2px solid transparent;
-      border-radius: 3px;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-    .user-info a:hover {
-      background-color: rgba(255,255,255,0.2);
-      border-color: #fff;
-    }
-    .user-info button {
-      margin-left: 10px;
-      background: #dc3545;
-      color: white;
-    }
-    .user-info button:hover {
-      background: #c82333;
-      border-color: #bd2130;
-    }
-    .admin-panel {
-      display: none;
-      justify-content: center;
-      margin: 10px 0;
-      padding: 10px;
-      background: rgba(0,123,255,0.1);
-    }
-    .admin-panel-btn {
-      padding: 8px 15px;
-      background: #007BFF;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      font-weight: bold;
-    }
-    .admin-panel-btn:hover {
-      background: #0056b3;
-      border-color: #004085;
-      transform: translateY(-2px);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    iframe {
-      width: 100%;
-      height: calc(100vh - 120px);
-      border: none;
-    }
+    /* ... (mantenha todo o CSS original inclusive do google-btn) ... */
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <h2>Minha Loja🎁</h2>
-    </div>
-    <div class="auth-area">
-      <div id="loginArea" class="login-form">
-        <input type="email" id="emailInput" placeholder="E-mail">
-        <input type="password" id="passwordInput" placeholder="Senha">
-        <button id="loginBtn">Entrar 🔑</button>
-        <a href="#" id="forgotPasswordLink" rel="noopener noreferrer">Esqueci a senha 🤦‍♀️</a>
-      </div>
-      <div id="userArea" class="user-info" style="display:none;">
-        <span id="welcomeUser"></span>
-        <a href="minhaconta.html" id="minhaContaLink" rel="noopener noreferrer">Minha Conta 🛒</a>
-        <button id="logoutBtn">Sair 🚘</button>
-      </div>
-    </div>
-  </header>
-
-  <div id="adminPanel" class="admin-panel">
-    <a href="painelcompleto.html" class="admin-panel-btn" rel="noopener noreferrer">Painel de Controle 👑</a>
-  </div>
-
-  <iframe src="produtosavenda.html"></iframe>
+  <!-- ... (mantenha todo o HTML original com o botão do Google) ... -->
 
   <script>
-    // Configuração do Firebase (substitua com suas credenciais)
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_PROJETO.firebaseapp.com",
-      projectId: "SEU_PROJETO",
-      storageBucket: "SEU_PROJETO.appspot.com",
-      messagingSenderId: "SEU_SENDER_ID",
-      appId: "SEU_APP_ID"
+    // Configuração do Firebase
+     const firebaseConfig = {
+      apiKey: "AIzaSyDlUQbbTP29VqBVmzOGHhfc67R1DTRPwxg",
+      authDomain: "gitautenticatio.firebaseapp.com",
+      projectId: "gitautenticatio",
+      storageBucket: "gitautenticatio.firebasestorage.app",
+      messagingSenderId: "21514234895",
+      appId: "1:21514234895:web:d34dc4c44baf586d2cc77a",
+      databaseURL: "https://gitautenticatio-default-rtdb.firebaseio.com",
+
     };
 
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
+    const database = firebase.database();
+
+    // Provedor do Google
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+
+    // Login com Google
+    document.getElementById('googleLoginBtn').addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider)
+        .then(async (result) => {
+          await checkAdminPermissions(result.user);
+          alert(`Bem-vindo ${result.user.displayName}!`);
+        })
+        .catch((error) => {
+          alert('Erro no login: ' + error.message);
+        });
+    });
+
+    // Verificar privilégios de admin
+    async function checkAdminPermissions(user) {
+      const adminRef = database.ref('admins/' + user.uid);
+      
+      adminRef.once('value', (snapshot) => {
+        const isAdmin = snapshot.exists();
+        document.getElementById('adminPanel').style.display = isAdmin ? 'flex' : 'none';
+        
+        // Opcional: Salvar no localStorage
+        localStorage.setItem('isAdmin', isAdmin);
+      }).catch((error) => {
+        console.error('Erro ao verificar admin:', error);
+      });
+    }
+
+    // Sistema de administradores (adicione isto no seu Realtime Database)
+    /*
+    {
+      "admins": {
+        "UID_DO_USUARIO1": true,
+        "UID_DO_USUARIO2": true
+      }
+    }
+    */
+
+    // ... (mantenha o resto do código de login/logout do e-mail/senha) ...
 
     // Monitorar estado de autenticação
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged((user) => {
       updateAuthUI(user);
-      await toggleAdminButton(user);
-    });
-
-    async function handleSuccessfulLogin(user) {
-      alert(`Bem-vindo ${user.email}!`);
-    }
-
-    async function toggleAdminButton(user) {
-      const adminPanel = document.getElementById("adminPanel");
-      if (user) {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        adminPanel.style.display = userDoc.data()?.isAdmin ? "flex" : "none";
-      } else {
-        adminPanel.style.display = "none";
-      }
-    }
-
-    // Login com e-mail/senha
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('emailInput').value;
-      const password = document.getElementById('passwordInput').value;
-
-      try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        await handleSuccessfulLogin(userCredential.user);
-      } catch (error) {
-        alert('Erro no login: ' + error.message);
-      }
-    });
-
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      try {
-        await auth.signOut();
-        alert('Logout realizado!');
-      } catch (error) {
-        alert('Erro ao sair: ' + error.message);
-      }
-    });
-
-    // Recuperação de senha
-    document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = prompt('Digite seu e-mail para redefinir a senha:');
-      if (email) {
-        try {
-          await auth.sendPasswordResetEmail(email);
-          alert('E-mail de redefinição enviado!');
-        } catch (error) {
-          alert('Erro ao enviar e-mail: ' + error.message);
-        }
-      }
+      if (user) checkAdminPermissions(user);
     });
 
     // Atualizar UI
@@ -225,7 +85,8 @@
       document.getElementById('loginArea').style.display = user ? 'none' : 'flex';
       document.getElementById('userArea').style.display = user ? 'flex' : 'none';
       if (user) {
-        document.getElementById('welcomeUser').textContent = `Bem-vindo 😘, ${user.email}`;
+        const displayName = user.displayName || user.email;
+        document.getElementById('welcomeUser').textContent = `Bem-vindo 😘, ${displayName}!`;
       }
     }
   </script>
